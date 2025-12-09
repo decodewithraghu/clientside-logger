@@ -1,9 +1,9 @@
 //const dir = require('./config/directory.js');
-const browserify = require('browserify');
-const babelify = require('babelify');
-const chalk = require('chalk');
-const fs = require('fs');
-const uglify = require('uglify-js');
+import browserify from 'browserify';
+import babelify from 'babelify';
+import chalk from 'chalk';
+import fs from 'fs';
+import uglify from 'uglify-js';
 
 
 

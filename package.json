@@ -1,0 +1,65 @@
+{
+  "name": "clientside-logger",
+  "version": "1.0.0",
+  "description": "A powerful, production-ready JavaScript logging utility for browser environments that captures client-side errors, unhandled promise rejections, and provides structured logging with remote endpoint support.",
+  "main": "dist/clientside-Logger.js",
+  "type": "module",
+  "scripts": {
+    "build": "node node_build/build.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
+  },
+  "keywords": [
+    "logger",
+    "browser",
+    "client-side",
+    "error-handling",
+    "logging",
+    "javascript",
+    "remote-logging",
+    "error-tracking"
+  ],
+  "author": "",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/decodewithraghu/clientside-logger.git"
+  },
+  "bugs": {
+    "url": "https://github.com/decodewithraghu/clientside-logger/issues"
+  },
+  "homepage": "https://github.com/decodewithraghu/clientside-logger#readme",
+  "devDependencies": {
+    "@babel/core": "^7.23.0",
+    "@babel/preset-env": "^7.23.0",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
+    "chalk": "^4.1.2",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "uglify-js": "^3.17.4"
+  },
+  "files": [
+    "dist/",
+    "lib/",
+    "examples/",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "jest": {
+    "testEnvironment": "jsdom",
+    "coverageDirectory": "coverage",
+    "collectCoverageFrom": [
+      "lib/**/*.js",
+      "!lib/**/*.test.js"
+    ],
+    "testMatch": [
+      "**/tests/**/*.test.js"
+    ],
+    "transform": {}
+  }
+}
