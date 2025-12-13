@@ -1,12 +1,13 @@
 # Browser Logger
 
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
-[![npm version](https://img.shields.io/badge/npm-1.0.0-green.svg)](https://www.npmjs.com/package/clientside-logger)
+[![npm version](https://img.shields.io/badge/npm-1.1.0-green.svg)](https://www.npmjs.com/package/clientside-logger)
 
 A powerful, production-ready JavaScript logging utility for browser environments that captures client-side errors, unhandled promise rejections, and provides structured logging with remote endpoint support.
 
 ## 🚀 Features
 
+### Core Features
 - ✅ **Multiple Log Levels** - DEBUG, LOG, INFO, WARN, ERROR, FATAL
 - ✅ **Automatic Error Catching** - Global error and unhandled promise rejection handlers
 - ✅ **Remote Logging** - Send logs to your backend service via HTTP POST
@@ -15,7 +16,18 @@ A powerful, production-ready JavaScript logging utility for browser environments
 - ✅ **Environment Modes** - Different behaviors for development vs production
 - ✅ **Fully Documented** - Complete JSDoc documentation for TypeScript support
 - ✅ **Zero Dependencies** - Standalone library with no external runtime dependencies
-- ✅ **Tested** - Comprehensive test suite with 70%+ coverage
+- ✅ **Tested** - Comprehensive test suite with 37 tests, 100% pass rate
+
+### v1.1.0 New Features
+- 🆕 **Request Batching** - Efficient batch sending with configurable size and timeout
+- 🆕 **Offline Support** - localStorage caching of logs when offline, auto-sync when reconnected
+- 🆕 **User & Session Tracking** - Automatic user ID and session ID in all logs
+- 🆕 **Browser Detection** - Auto-capture browser type, version, OS, and screen resolution
+- 🆕 **Advanced Filtering** - Pattern-based error ignoring and log sampling
+- 🆕 **PII Sanitization** - Automatic redaction of SSNs, credit cards, API keys
+- 🆕 **Security Hooks** - beforeSend/afterSend callbacks for log modification and reactions
+- 🆕 **Breadcrumb Tracking** - Track user interactions leading up to errors
+- 🆕 **Utility Methods** - addBreadcrumb, flushLogs, getStoredLogs, getBrowserInfo
 
 ## 📦 Installation
 
@@ -97,13 +109,34 @@ Logger.fatal({ errorMessage: 'Critical system error', stack: err.stack });
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
+| **Remote Logging** |
 | `logURL` | `string` | `''` | Remote endpoint URL to POST logs to |
 | `logThreshold` | `string` | `'ERROR'` | Minimum log level to send remotely: `DEBUG`, `LOG`, `INFO`, `WARN`, `ERROR`, `FATAL` |
 | `routeURL` | `string` | `''` | URL to redirect to on fatal errors (optional) |
+| **Display** |
 | `showMessageInDevelopment` | `boolean` | `true` | Display console messages in development mode |
 | `showMessageInProduction` | `boolean` | `false` | Display console messages in production mode |
 | `silenceStackTrace` | `boolean` | `false` | Suppress stack trace output |
-| `additionalInformation` | `string` | `''` | Extra context included in all log messages (e.g., app version, environment) |
+| `additionalInformation` | `string` | `''` | Extra context included in all log messages |
+| **v1.1.0: Performance & Resource Management** |
+| `batchSize` | `number` | `10` | Number of logs to batch before sending |
+| `batchTimeout` | `number` | `5000` | Milliseconds to wait before flushing batch (ms) |
+| `requestTimeout` | `number` | `10000` | HTTP request timeout (ms) |
+| `useLocalStorage` | `boolean` | `true` | Enable offline log caching in localStorage |
+| **v1.1.0: Data Collection & Context** |
+| `userId` | `string` | `''` | User identifier to include in all logs |
+| `sessionId` | `string` | `''` | Session identifier to include in all logs |
+| `environment` | `string` | `'production'` | Environment label (e.g., 'production', 'staging', 'development') |
+| `captureUserAgent` | `boolean` | `true` | Auto-capture browser and OS information |
+| `captureScreenResolution` | `boolean` | `true` | Auto-capture screen resolution |
+| **v1.1.0: Advanced Filtering & Control** |
+| `ignoredErrors` | `RegExp[]` | `[]` | Array of regex patterns for errors to ignore |
+| `sampleRate` | `number` | `1.0` | Percentage of logs to send (0.0 - 1.0) |
+| `customFilters` | `Function[]` | `[]` | Custom filter functions to determine which logs to send |
+| **v1.1.0: Security & Privacy** |
+| `sanitize` | `boolean` | `true` | Auto-sanitize PII (SSN, credit cards, API keys) |
+| `beforeSend` | `Function` | `null` | Hook function called before sending each log |
+| `afterSend` | `Function` | `null` | Hook function called after log is sent |
 
 ## 📊 Log Levels
 
@@ -178,6 +211,78 @@ Object containing all available log level constants.
 ```javascript
 console.log(Logger.LOGLEVELS);
 // { DEBUG: 'DEBUG', LOG: 'LOG', INFO: 'INFO', WARN: 'WARN', ERROR: 'ERROR', FATAL: 'FATAL' }
+```
+
+### v1.1.0 Utility Methods
+
+#### `Logger.addBreadcrumb(message, data)`
+Track user interactions that led to an error.
+
+```javascript
+Logger.addBreadcrumb('User clicked checkout', { button: 'checkout-btn' });
+Logger.addBreadcrumb('Cart updated', { itemCount: 5 });
+Logger.error({ errorMessage: 'Payment failed' });
+// Breadcrumbs are included with the error log
+```
+
+#### `Logger.flushLogs()`
+Immediately send all pending batched logs to the server.
+
+```javascript
+Logger.log(['Operation started']);
+Logger.log(['Operation completed']);
+Logger.flushLogs();  // Send queued logs immediately
+```
+
+#### `Logger.getStoredLogs()`
+Retrieve logs stored in offline cache.
+
+```javascript
+const offlineLogs = Logger.getStoredLogs();
+console.log('Cached logs:', offlineLogs);
+// Returns array of log objects stored in localStorage
+```
+
+#### `Logger.getBrowserInfo()`
+Get detected browser and system information.
+
+```javascript
+const browserInfo = Logger.getBrowserInfo();
+console.log(browserInfo);
+// { browser: 'Chrome', version: '120', OS: 'Windows', screenResolution: '1920x1080' }
+```
+
+### v1.1.0 Security Features
+
+#### PII Sanitization
+Automatically redacts sensitive data from all logs:
+
+```javascript
+Logger.init({ sanitize: true });
+
+// These are automatically sanitized:
+Logger.error('Credit card 4532-1234-5678-9010 failed');  // → ****-****-****-9010
+Logger.error('SSN: 123-45-6789');                       // → [REDACTED]
+Logger.error('API Key: sk_live_abc123xyz');            // → sk_live_[REDACTED]
+```
+
+#### Security Hooks
+Modify or react to logs before/after sending:
+
+```javascript
+Logger.init({
+    beforeSend: (log) => {
+        // Modify log before sending
+        if (log.message.includes('sensitive')) {
+            log.message = '[REDACTED]';
+        }
+        return log;
+    },
+    afterSend: (log) => {
+        // React after sending
+        analytics.track('error', { type: log.logType });
+    }
+});
 ```
 
 ## 🌐 Remote Logging
@@ -267,10 +372,15 @@ This library has been thoroughly vetted for production use:
 1. **Initialize Early** - Call `Logger.init()` at the start of your application before other code runs
 2. **Choose Appropriate Levels** - Use DEBUG/LOG for development, INFO/WARN/ERROR/FATAL for production
 3. **Set Smart Thresholds** - Only send ERROR and FATAL to your server to reduce noise
-4. **Include Context** - Use `additionalInformation` to add app version, environment, or user context
-5. **Use tryCatch** - Wrap risky operations in `Logger.tryCatch()` for better error tracking
-6. **Test Your Endpoint** - Ensure your `logURL` accepts the JSON payload format
-7. **Handle Errors Gracefully** - The logger won't break your app if logging fails
+4. **Include Context** - Use `userId` and `sessionId` to track logs by user and session
+5. **Enable Batching** - Use request batching to reduce server load (default: batchSize=10, timeout=5s)
+6. **Use Offline Support** - Enable localStorage caching for critical applications
+7. **Sanitize Sensitive Data** - Enable `sanitize: true` to auto-redact PII
+8. **Add Breadcrumbs** - Use `addBreadcrumb()` to track user actions leading to errors
+9. **Implement Security Hooks** - Use `beforeSend` to validate logs before sending
+10. **Use tryCatch** - Wrap risky operations in `Logger.tryCatch()` for better error tracking
+11. **Test Your Endpoint** - Ensure your `logURL` accepts the JSON payload format
+12. **Handle Errors Gracefully** - The logger won't break your app if logging fails
 
 ## 🐛 Troubleshooting
 
