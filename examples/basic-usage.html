@@ -112,24 +112,130 @@
             <p>Test manual error catching:</p>
             <button class="error" onclick="testCatcher()">Catch Custom Error</button>
         </div>
+
+        <div class="section">
+            <h2>5. 🆕 v1.1.0 Advanced Features</h2>
+            <p><strong>New in v1.1.0:</strong> Request batching, offline support, user tracking, advanced filtering, and security hooks!</p>
+            <h3>Breadcrumb Tracking</h3>
+            <button onclick="trackBreadcrumb()">Track User Breadcrumb</button>
+            <p><small>Breadcrumbs track user interactions and appear in error logs</small></p>
+            
+            <h3>Offline Support</h3>
+            <button onclick="getOfflineHistory()">View Stored Offline Logs</button>
+            <button onclick="flushPendingLogs()">Flush Batched Logs Now</button>
+            <p><small>Logs are automatically stored offline and synced when connection restored</small></p>
+            
+            <h3>Browser Context</h3>
+            <button class="info" onclick="showBrowserInfo()">Show Browser Info</button>
+            <p><small>Automatically captured: browser type, OS, screen resolution</small></p>
+            
+            <h3>Security & Privacy</h3>
+            <button class="error" onclick="testSanitization()">Test PII Sanitization</button>
+            <p><small>Credit cards, SSNs, and API keys are automatically redacted</small></p>
+            
+            <h3>Advanced Filtering</h3>
+            <button onclick="testSampling()">Test Log Sampling</button>
+            <p><small>Only a configured percentage of logs sent to reduce server load</small></p>
+        </div>
     </div>
 
     <!-- Include the logger library -->
     <script src="../dist/clientside-Logger.js"></script>
     
     <script>
-        // Initialize the logger with configuration
+        // Initialize the logger with v1.1.0 features
         Logger.init({
+            // Remote logging configuration
             logURL: 'https://your-api.example.com/logs',  // Replace with your logging endpoint
             logThreshold: 'ERROR',  // Only send ERROR and FATAL to remote server
-            // routeURL: '/error-page',  // Optional: Redirect to this page on fatal errors (commented out as page doesn't exist)
+            
+            // Performance & Resource Management
+            batchSize: 10,          // Batch logs before sending
+            batchTimeout: 5000,     // Flush after 5 seconds
+            requestTimeout: 10000,  // 10 second HTTP timeout
+            useLocalStorage: true,  // Enable offline support
+            
+            // Data Collection & Context
+            userId: 'user123',      // Track logs by user
+            sessionId: 'sess-abc',  // Track by session
+            environment: 'production',  // Environment context
+            captureUserAgent: true,     // Auto-capture browser info
+            captureScreenResolution: true,  // Capture screen size
+            
+            // Advanced Filtering & Control
+            ignoredErrors: [/Script error/, /Chrome-extension/],  // Ignore patterns
+            sampleRate: 1.0,  // Send 100% of logs (0.0-1.0)
+            
+            // Security & Privacy
+            sanitize: true,  // Auto-sanitize PII
+            beforeSend: (log) => {
+                // Add custom field before sending
+                log.appVersion = '1.0.0';
+                return log;
+            },
+            afterSend: (log) => {
+                console.log('Log sent:', log.logType);
+            },
+            
+            // Display configuration
             showMessageInDevelopment: true,  // Show console messages in development
             showMessageInProduction: false,  // Hide console messages in production
-            silenceStackTrace: false,  // Show stack traces
-            additionalInformation: 'Example App v1.0.0'  // Additional context for logs
+            silenceStackTrace: false,        // Show stack traces
+            additionalInformation: 'Example App v1.1.0'  // Additional context
         });
 
-        console.log('✅ Logger initialized successfully!');
+        console.log('✅ Logger v1.1.0 initialized with advanced features!');
+
+        // ============================================
+        // v1.1.0 NEW FEATURES DEMONSTRATION
+        // ============================================
+        
+        // Advanced: Add breadcrumbs for user interactions
+        function trackBreadcrumb() {
+            Logger.addBreadcrumb('User action tracked', { 
+                action: 'navigation', 
+                from: 'home',
+                to: 'dashboard'
+            });
+            console.log('✅ Breadcrumb added - will appear in next log');
+        }
+
+        // Advanced: Retrieve stored logs from offline cache
+        function getOfflineHistory() {
+            const storedLogs = Logger.getStoredLogs();
+            console.log('📦 Offline stored logs:', storedLogs);
+            alert('Stored ' + storedLogs.length + ' logs in localStorage');
+        }
+
+        // Advanced: Manual log flushing
+        function flushPendingLogs() {
+            Logger.flushLogs();
+            console.log('🔄 Pending batched logs flushed to server');
+            alert('Batched logs sent to server immediately');
+        }
+
+        // Advanced: Get browser info captured by logger
+        function showBrowserInfo() {
+            const browserInfo = Logger.getBrowserInfo();
+            console.log('🖥️ Browser Info:', browserInfo);
+            alert('Browser: ' + browserInfo.browser + '\nOS: ' + browserInfo.OS);
+        }
+
+        // Advanced: Demonstrate PII sanitization
+        function testSanitization() {
+            Logger.error('User credit card: 4532-1234-5678-9010 failed validation');
+            Logger.error('SSN provided: 123-45-6789 for identity check');
+            Logger.error('API Key leaked: sk_live_aBcDeFgHiJkLmNoPqRs exposed');
+            console.log('✅ Sensitive data automatically sanitized in logs');
+        }
+
+        // Advanced: Test sampling (only sends configured percentage)
+        function testSampling() {
+            for (let i = 0; i < 10; i++) {
+                Logger.log('Sampled log #' + (i + 1) + ' (may not all be sent)');
+            }
+            console.log('✅ 10 logs sent, but only sample rate % will reach server');
+        }
 
         // Example 1: Basic Logging Functions
         function testDebug() {

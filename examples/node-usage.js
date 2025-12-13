@@ -78,19 +78,69 @@ const Logger = {
                 catchCallback(error);
             }
         }
+    },
+    
+    // v1.1.0: New utility methods
+    addBreadcrumb: function(message, data) {
+        console.log('[BREADCRUMB]:', message, data);
+    },
+    
+    flushLogs: function() {
+        console.log('[FLUSH]:', 'Batched logs sent to server');
+    },
+    
+    getStoredLogs: function() {
+        console.log('[STORED_LOGS]:', 'Retrieved cached logs');
+        return [];
+    },
+    
+    getBrowserInfo: function() {
+        console.log('[BROWSER_INFO]:', 'Detected browser environment');
+        return { browser: 'Node.js', version: process.version };
     }
 };
 
-console.log('\n=== Example 1: Initialization ===\n');
-console.log('\n=== Example 1: Initialization ===\n');
+console.log('\n=== Example 1: Initialization with v1.1.0 Features ===\n');
 
-// Initialize the logger with configuration
+// Initialize the logger with v1.1.0 advanced configuration
 Logger.init({
+    // Remote logging
     logURL: 'https://api.example.com/logs',
     logThreshold: 'ERROR',
+    
+    // v1.1.0: Performance & Resource Management
+    batchSize: 10,          // Batch logs before sending
+    batchTimeout: 5000,     // Flush after 5 seconds
+    requestTimeout: 10000,  // 10 second timeout
+    useLocalStorage: true,  // Enable offline caching
+    
+    // v1.1.0: Data Collection & Context
+    userId: 'user_node_123',      // Track by user
+    sessionId: 'session_abc456',  // Track by session
+    environment: 'production',     // Environment label
+    captureUserAgent: true,        // Auto-capture browser info
+    captureScreenResolution: true, // Capture screen dimensions
+    
+    // v1.1.0: Advanced Filtering & Control
+    ignoredErrors: [/Script error/, /TestError/],  // Ignore patterns
+    sampleRate: 1.0,  // Send 100% of logs (0.0-1.0)
+    
+    // v1.1.0: Security & Privacy
+    sanitize: true,  // Auto-sanitize PII (SSN, CC, API keys)
+    beforeSend: (log) => {
+        // Modify log before sending
+        log.nodeVersion = process.version;
+        return log;
+    },
+    afterSend: (log) => {
+        // React to log being sent
+        console.log('📤 Log sent:', log.logType);
+    },
+    
+    // Display settings
     showMessageInDevelopment: true,
     showMessageInProduction: false,
-    additionalInformation: 'Node.js Example App v1.0'
+    additionalInformation: 'Node.js Example App v1.1.0'
 });
 
 console.log('\n=== Example 2: Basic Logging Levels ===\n');
@@ -211,13 +261,56 @@ UserService.saveUser({ id: 1, name: 'Jane Doe' });
 console.log('\nTest 4: Invalid user save (missing name)');
 UserService.saveUser({ id: 2 });
 
-console.log('\n=== Example 7: Available Log Levels ===\n');
+console.log('\n=== Example 7: v1.1.0 Advanced Features ===\n');
+
+console.log('--- Breadcrumb Tracking ---');
+Logger.addBreadcrumb('User logged in', { userId: 'user_123', timestamp: new Date() });
+Logger.addBreadcrumb('Accessed dashboard', { pageLoad: '250ms' });
+Logger.info(['User navigated to settings']);
+Logger.addBreadcrumb('Changed password', { security: 'high' });
+
+console.log('\n--- Offline Support & Log Batching ---');
+Logger.info(['Log 1 queued for batch']);
+Logger.info(['Log 2 queued for batch']);
+Logger.info(['Log 3 queued for batch']);
+console.log('✅ 3 logs batched, will flush after 5 seconds or at batch size 10');
+Logger.flushLogs(); // Force immediate send
+
+console.log('\n--- Retrieve Offline History ---');
+const storedLogs = Logger.getStoredLogs();
+console.log('✅ Retrieved', storedLogs.length, 'logs from offline cache');
+
+console.log('\n--- Browser/Environment Context ---');
+const browserInfo = Logger.getBrowserInfo();
+console.log('Environment detected:', browserInfo.browser, browserInfo.version);
+
+console.log('\n--- PII Sanitization Example ---');
+Logger.error({ 
+    errorMessage: 'Payment failed for credit card 4532-1234-5678-9010',
+    stack: 'Payment processing error'
+});
+Logger.error({
+    errorMessage: 'User SSN validation: 123-45-6789 failed',
+    stack: 'Validation error'
+});
+console.log('✅ Sensitive data automatically redacted in all logs');
+
+console.log('\n=== Example 8: Available Log Levels ===\n');
 console.log('Logger.LOGLEVELS:', Logger.LOGLEVELS);
 
 console.log('\n=== Examples Completed Successfully ===\n');
-console.log('To use the actual logger in Node.js:');
+console.log('To use the logger in Node.js with v1.1.0 features:');
 console.log('1. Run: npm run build');
 console.log('2. In your Node.js file: const Logger = require("./dist/clientside-Logger.js");');
-console.log('3. Use the same API as shown above\n');
-console.log('Note: Browser-specific features (window event listeners) will not work in Node.js');
-console.log('but the logging API and tryCatch utilities will function correctly.\n');
+console.log('3. Use the same API as shown above with v1.1.0 enhancements\n');
+console.log('v1.1.0 Features Available:');
+console.log('  ✅ Request batching (batchSize, batchTimeout)');
+console.log('  ✅ Offline support (useLocalStorage)');
+console.log('  ✅ User/session tracking (userId, sessionId)');
+console.log('  ✅ Advanced filtering (ignoredErrors, sampleRate)');
+console.log('  ✅ Security hooks (beforeSend, afterSend)');
+console.log('  ✅ PII sanitization (sanitize option)');
+console.log('  ✅ Breadcrumb tracking (addBreadcrumb)');
+console.log('  ✅ Context utilities (getBrowserInfo, getStoredLogs, flushLogs)\n');
+console.log('Note: Browser-specific features (window events) will not work in Node.js');
+console.log('but all logging API and utility methods function correctly.\n');
