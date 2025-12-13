@@ -11,12 +11,15 @@ module.exports = {
   testPathIgnorePatterns: [
     '/node_modules/'
   ],
-  transformIgnorePatterns: [
-    'node_modules/(?!.*\\.mjs$)'
-  ],
+  transform: {
+    '^.+\\.jsx?$': 'babel-jest'
+  },
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1'
   },
-  extensionsToTreatAsEsm: [],
-  moduleFileExtensions: ['js', 'mjs', 'cjs', 'json', 'node']
+  moduleFileExtensions: ['js', 'mjs', 'cjs', 'json', 'node'],
+  testTimeout: 10000,
+  verbose: true
 }
+
+
