@@ -1,7 +1,7 @@
 # Browser Logger
 
 [![License: ISC](https://img.shields.io/badge/License-ISC-blue.svg)](https://opensource.org/licenses/ISC)
-[![npm version](https://img.shields.io/badge/npm-1.0.0-green.svg)](https://www.npmjs.com/package/browserLogger)
+[![npm version](https://img.shields.io/badge/npm-1.0.0-green.svg)](https://www.npmjs.com/package/clientside-logger)
 
 A powerful, production-ready JavaScript logging utility for browser environments that captures client-side errors, unhandled promise rejections, and provides structured logging with remote endpoint support.
 
@@ -20,7 +20,7 @@ A powerful, production-ready JavaScript logging utility for browser environments
 ## 📦 Installation
 
 ```bash
-npm install browserLogger --save
+npm install clientside-logger --save
 ```
 
 Or include directly in your HTML:
@@ -73,7 +73,7 @@ Or include directly in your HTML:
 ### ES6 Module Usage
 
 ```javascript
-import Logger from 'browserLogger';
+import Logger from 'clientside-logger';
 
 // Initialize with configuration
 Logger.init({
@@ -305,8 +305,8 @@ Contributions are welcome! Please feel free to submit issues or pull requests.
 
 - [API Documentation](./doc/api.md)
 - [Examples](./examples/README.md)
-- [GitHub Repository](https://github.com/raghuraghavan/clientside_logger)
-- [Issue Tracker](https://github.com/raghuraghavan/clientside_logger/issues)
+- [GitHub Repository](https://github.com/decodewithraghu/clientside-logger)
+- [Issue Tracker](https://github.com/decodewithraghu/clientside-logger/issues)
 
 ---
 

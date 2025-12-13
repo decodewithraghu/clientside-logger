@@ -34,13 +34,13 @@ Shows the API usage patterns in a Node.js environment.
 ### Installation
 
 ```bash
-npm install browserLogger --save
+npm install clientside-logger --save
 ```
 
 ### Basic Usage
 
 ```javascript
-import Logger from 'browserLogger';
+import Logger from 'clientside-logger';
 
 // 1. Initialize the logger
 Logger.init({
