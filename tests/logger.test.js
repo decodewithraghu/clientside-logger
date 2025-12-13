@@ -42,6 +42,18 @@ class MockXMLHttpRequest {
 
 global.XMLHttpRequest = MockXMLHttpRequest
 
+// Mock localStorage
+const localStorageMock = {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn(),
+    clear: jest.fn()
+}
+global.localStorage = localStorageMock
+
+// Mock fetch
+global.fetch = jest.fn()
+
 describe('Logger Module', () => {
     let consoleWarnSpy
     let consoleErrorSpy
@@ -197,6 +209,202 @@ describe('Logger Module', () => {
             })
 
             error({ errorMessage: 'Remote error', stack: 'Stack trace' })
+
+            setTimeout(() => {
+                done()
+            }, 50)
+        })
+    })
+
+    describe('Performance & Resource Management', () => {
+        test('should batch logs when batchSize is reached', (done) => {
+            init({
+                logURL: 'https://example.com/logs',
+                batchSize: 2,
+                batchTimeout: 1000,
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'Error 1', stack: 'Stack 1' })
+            error({ errorMessage: 'Error 2', stack: 'Stack 2' })
+
+            setTimeout(() => {
+                done()
+            }, 50)
+        })
+
+        test('should handle request timeout', (done) => {
+            init({
+                logURL: 'https://example.com/logs',
+                requestTimeout: 100,
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'Timeout test', stack: 'Stack' })
+
+            setTimeout(() => {
+                done()
+            }, 150)
+        })
+    })
+
+    describe('Data Collection & Context', () => {
+        test('should capture browser info when enabled', (done) => {
+            init({
+                logURL: 'https://example.com/logs',
+                captureUserAgent: true,
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'Browser test', stack: 'Stack' })
+
+            setTimeout(() => {
+                done()
+            }, 50)
+        })
+
+        test('should capture user and session IDs when provided', (done) => {
+            init({
+                logURL: 'https://example.com/logs',
+                userId: 'user123',
+                sessionId: 'session456',
+                environment: 'production',
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'User context test', stack: 'Stack' })
+
+            setTimeout(() => {
+                done()
+            }, 50)
+        })
+    })
+
+    describe('Advanced Filtering & Control', () => {
+        test('should ignore errors matching patterns', (done) => {
+            init({
+                logURL: 'https://example.com/logs',
+                ignoredErrors: [/Script error/, 'ignored message'],
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'Script error', stack: 'Stack' })
+
+            setTimeout(() => {
+                done()
+            }, 50)
+        })
+
+        test('should apply custom filters', (done) => {
+            const customFilter = jest.fn(() => true)
+
+            init({
+                logURL: 'https://example.com/logs',
+                customFilters: [customFilter],
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'Filter test', stack: 'Stack' })
+
+            setTimeout(() => {
+                expect(customFilter).toHaveBeenCalled()
+                done()
+            }, 50)
+        })
+
+        test('should apply sampling', (done) => {
+            init({
+                logURL: 'https://example.com/logs',
+                sampleRate: 0.5,
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'Sample test', stack: 'Stack' })
+
+            setTimeout(() => {
+                done()
+            }, 50)
+        })
+    })
+
+    describe('Security & Privacy', () => {
+        test('should sanitize PII by default', (done) => {
+            init({
+                logURL: 'https://example.com/logs',
+                sanitize: true,
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'SSN: 123-45-6789', stack: 'Stack' })
+
+            setTimeout(() => {
+                done()
+            }, 50)
+        })
+
+        test('should call beforeSend hook', (done) => {
+            const beforeSend = jest.fn((log) => {
+                log.customField = 'added'
+                return log
+            })
+
+            init({
+                logURL: 'https://example.com/logs',
+                beforeSend,
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'Hook test', stack: 'Stack' })
+
+            setTimeout(() => {
+                expect(beforeSend).toHaveBeenCalled()
+                done()
+            }, 50)
+        })
+
+        test('should call afterSend hook', (done) => {
+            const afterSend = jest.fn()
+
+            init({
+                logURL: 'https://example.com/logs',
+                afterSend,
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'After hook test', stack: 'Stack' })
+
+            setTimeout(() => {
+                expect(afterSend).toHaveBeenCalled()
+                done()
+            }, 50)
+        })
+    })
+
+    describe('Breadcrumbs & Interactions', () => {
+        test('should track user interactions', (done) => {
+            init({
+                captureInteractions: true,
+                showMessageInDevelopment: true
+            })
+
+            const clickEvent = new MouseEvent('click', { bubbles: true })
+            document.dispatchEvent(clickEvent)
+
+            setTimeout(() => {
+                done()
+            }, 50)
+        })
+    })
+
+    describe('Offline Support', () => {
+        test('should store logs in localStorage when offline', (done) => {
+            init({
+                logURL: 'https://example.com/logs',
+                useLocalStorage: true,
+                showMessageInDevelopment: true
+            })
+
+            error({ errorMessage: 'Offline test', stack: 'Stack' })
 
             setTimeout(() => {
                 done()

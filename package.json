@@ -1,8 +1,9 @@
 {
   "name": "clientside-logger",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A powerful, production-ready JavaScript logging utility for browser environments that captures client-side errors, unhandled promise rejections, and provides structured logging with remote endpoint support.",
   "main": "dist/clientside-Logger.js",
+  "types": "index.d.ts",
   "type": "module",
   "scripts": {
     "build": "node node_build/build.js",
@@ -49,17 +50,5 @@
   ],
   "engines": {
     "node": ">=14.0.0"
-  },
-  "jest": {
-    "testEnvironment": "jsdom",
-    "coverageDirectory": "coverage",
-    "collectCoverageFrom": [
-      "lib/**/*.js",
-      "!lib/**/*.test.js"
-    ],
-    "testMatch": [
-      "**/tests/**/*.test.js"
-    ],
-    "transform": {}
   }
 }
